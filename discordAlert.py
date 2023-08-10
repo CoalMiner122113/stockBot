@@ -4,7 +4,7 @@ import os
 import random
 import datetime
 
-bot = discord.Client()
+bot = discord.Client(intents=discord.Intents.default())
 
 @bot.event
 async def on_member_join(member):
@@ -18,7 +18,7 @@ async def on_member_join(member):
 
 @bot.event
 async def on_message(message):
-    if message.author = bot.user:
+    if message.author == bot.user:
         return
     
     channel = message.channel
@@ -26,6 +26,10 @@ async def on_message(message):
     await channel.send(response)
 
 # @bot.event
-# async def crypto_reminder():
-    # await
-# 
+# async def func():
+    # channel =
+    # response =  
+    # await channel.send(response)
+    
+token = os.getenv('DISCORD_BOT_TOKEN')
+bot.run(token)

@@ -2,7 +2,7 @@ from flask import Flask
 from flask_restful import Api, Resource, reqparse
 import pandas as pd
 import ast
-from data import getData
+from data import getTestData
 
 app = Flask(__name__)
 api = Api(app)
@@ -10,7 +10,7 @@ api = Api(app)
 #Methods for test class
 class Test(Resource):
     def get(self):
-        data = getData().to_dict()
+        data = getTestData().to_dict()
         return {"data": data}, 200    
     pass
 
