@@ -3,6 +3,9 @@ import asyncio
 import os
 import random
 import datetime
+from dotenv import load_dotenv
+
+load_dotenv()
 
 bot = discord.Client(intents=discord.Intents.default())
 
