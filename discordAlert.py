@@ -25,25 +25,32 @@ async def on_ready():
 
 async def test_message_loop():
     
+    rating = "Hold!"
+    
+    #get general channel
+    channel = bot.get_channel(discord.utils.get(bot.get_all_channels(), name='general').id)
+    
     while True:
         await asyncio.sleep(15)
-        #get general channel
-        channel = bot.get_channel(discord.utils.get(bot.get_all_channels(), name='general').id)
-        response = (await stockWatch.current_price('BTC-USD'))
-        await channel.send("BTC Price is: " + str(response))
-
+        #if the rating has changed, send a message and update last rating
+        if (await stockWatch.compareMA('BTC-USD'))["Rating"] != rating:
+            ret = (await stockWatch.compareMA('BTC-USD'))
+            rating = ret["Rating"]
+            fastMA = ret["Fast MA"]
+            slowMA = ret["Slow MA"]
+            response = f'Hello {channel.mention}! The current BTC rating is {rating}!\nFast MA: {fastMA}\nSlow MA: {slowMA}'
+            await channel.send(response)        
+        
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
 
     #if 'btc' in message.content.lower():
-    print("CompareMA called")
-    for word in message.content.lower():
-        print(word)
+    print("Price Called")
     channel = message.channel
-    rating = (await stockWatch.compareMA('BTC-USD'))
-    response = f'Hello {message.author.mention}! The current BTC rating is {rating}!'
+    price = (await stockWatch.current_price('BTC-USD'))
+    response = f'Hello {message.author.mention}! The current BTC price is {price}!'
     await channel.send(response)
     await bot.process_commands(message)
 

@@ -10,11 +10,11 @@ async def current_price(ticker):
     return yf.Ticker(ticker).history(period='1d')['Close'][0]
 
 #returns a moving average of a given ticker
-async def moving_average(ticker, period):
+async def moving_average(ticker, interval):
     #Get data from yfinance
-    data = yf.Ticker(ticker).history(period='1d', start='2020-01-01', end=dt.now())
+    data = yf.Ticker(ticker).history(period='1d', interval=f'{interval}m')
     #Calculate moving average
-    data['MA'] = data['Close'].rolling(period).mean()
+    data['MA'] = data['Close'].rolling(window = 5).mean()
     #Return the last value of the moving average
     return data['MA'][-1]
 
@@ -22,18 +22,31 @@ async def moving_average(ticker, period):
 ##If the fast moving average crosses above the slow moving average, it returns a buy signal
 ##If the fast moving average crosses below the slow moving average, it returns a sell signal
 async def compareMA(ticker):
-    slowMA_Interval = 100
-    fastMA_Interval= 10
+    slowMA_Interval = 5
+    fastMA_Interval= 1
 
     slowMA = (await moving_average(ticker, slowMA_Interval))
     fastMA = (await moving_average(ticker, fastMA_Interval))
     
+    ret = {"Rating": "Undertermined", 
+           "Fast MA": fastMA, 
+           "Slow MA": slowMA}
+    
     if fastMA > slowMA:
-        return "Buy!" + "\nFast MA: " + str(fastMA) + "\nSlow MA: " + str(slowMA)
+        ret["Rating"] = "Buy!"
     elif fastMA < slowMA:
-        return "Sell!" + "\nFast MA: " + str(fastMA) + "\nSlow MA: " + str(slowMA)
+        ret["Rating"] = "Sell!"
     else:
-        return "Hold"
+        ret["Rating"] = "Hold!"
+    
+    return ret
 
-response = compareMA('BTC-USD')
-print(response)
+async def test():
+    print("Hello World")
+    ret = await compareMA('BTC-USD')
+    rating = ret["Rating"]
+    fastMA = ret["Fast MA"]
+    slowMA = ret["Slow MA"]
+    print(f'Rating: {rating}\nFast MA: {fastMA}\nSlow MA: {slowMA}')
+
+#asyncio.run(test())
