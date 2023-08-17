@@ -1,38 +1,51 @@
-import discord 
+import discord
+from discord.ext import commands
 import asyncio
 import os
-import random
-import datetime
 from dotenv import load_dotenv
+import yfinance as yf
+import stockWatch
 
+intents = discord.Intents.default()
+# intents.members = True
+# intents.presences = True
+# intents.messages = True
+# intents.message_content = True
+
+bot = commands.Bot(command_prefix='!', intents=intents)
+
+#Necessary for .env file to work on py38
 load_dotenv()
-
-bot = discord.Client(intents=discord.Intents.default())
+bot_token = os.getenv('DISCORD_BOT_TOKEN')
 
 @bot.event
-async def on_member_join(member):
-    if member == bot.user:
-        return
-    
-    channel = discord.utils.get(member.guild.channels, name='general')
-    response = f'Welcome to the server {member.mention}!'
+async def on_ready():
+    print('Bot is ready.')
+    await test_message_loop()
 
-    await channel.send(response)
+async def test_message_loop():
+    
+    while True:
+        await asyncio.sleep(15)
+        #get general channel
+        channel = bot.get_channel(discord.utils.get(bot.get_all_channels(), name='general').id)
+        response = (await stockWatch.current_price('BTC-USD'))
+        await channel.send("BTC Price is: " + str(response))
 
 @bot.event
 async def on_message(message):
     if message.author == bot.user:
         return
-    
-    channel = message.channel
-    response = f'Hello {message.author.mention}! Nano server is running!'
-    await channel.send(response)
 
-# @bot.event
-# async def func():
-    # channel =
-    # response =  
-    # await channel.send(response)
-    
-token = os.getenv('DISCORD_BOT_TOKEN')
-bot.run(token)
+    #if 'btc' in message.content.lower():
+    print("CompareMA called")
+    for word in message.content.lower():
+        print(word)
+    channel = message.channel
+    rating = (await stockWatch.compareMA('BTC-USD'))
+    response = f'Hello {message.author.mention}! The current BTC rating is {rating}!'
+    await channel.send(response)
+    await bot.process_commands(message)
+
+
+bot.run(bot_token)
