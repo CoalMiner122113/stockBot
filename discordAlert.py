@@ -31,7 +31,7 @@ async def test_message_loop():
     channel = bot.get_channel(discord.utils.get(bot.get_all_channels(), name='general').id)
     
     while True:
-        await asyncio.sleep(15)
+        await asyncio.sleep(2 * 60)
         #if the rating has changed, send a message and update last rating
         if (await stockWatch.compareMA('BTC-USD'))["Rating"] != rating:
             ret = (await stockWatch.compareMA('BTC-USD'))
